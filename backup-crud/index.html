@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Tabela com Filtro e Exclusão</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+</head>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+
+<body>
+  <h2>Filtrar Tabela e Excluir Funcionários</h2>
+  <p>Digite algo nos campos abaixo para filtrar a tabela:</p>
+  <div class="filter-container">
+    <input id="filterID" type="text" placeholder="Filtrar Por ID">
+    <input id="filterName" type="text" placeholder="Filtrar por Nome do Funcionário">
+    <input id="filterCompany" type="text" placeholder="Filtrar por Empresa">
+    <input id="filterLocation" type="text" placeholder="Filtrar por Obra Localizada">
+  </div>
+  <button id="addNewRecordBtn" class="addNewRecordBtn">Adicionar Novo FUNCIONARIO</button>
+
+  <div id="resultCount">Resultados encontrados: 0</div>
+
+  <table border="1" id="myTable">
+    <thead>
+      <tr>
+        <th>Selecionar</th>
+        <th>ID</th>
+        <th>Funcionário</th>
+        <th>Empresa</th>
+        <th>Obra Localizada</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in records %}
+      <tr>
+        <td><input type="radio" name="selected_record" value="{{ record[0] }}"></td>
+        <td>{{ record[0] }}</td>
+        <td>{{ record[1] }}</td>
+        <td>{{ record[2] }}</td>
+        <td>{{ record[3] }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('delete', id=record[0]) }}" style="display:inline;">
+            <button type="submit" class="delete-button">Excluir</button>
+          </form>
+          <button class="addNewRecordBtn" onclick="window.openEditModal('{{ record[0] }}', '{{ record[1] }}', '{{ record[2] }}', '{{ record[3] }}')">Editar</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  
+  <!-- Modal para Adicionar Novo Funcionário -->
+<!-- Modal para Adicionar Novo Funcionário -->
+<div id="addModal" class="modal">
+  <div class="modal-content">
+      <span id="addClose" class="close">&times;</span>
+      <h2>Adicionar Novo Funcionário</h2><br>
+      <form method="POST" action="{{ url_for('adiciona_funcionario') }}">
+          <!-- Campo oculto para identificar que é um novo registro -->
+          <input type="hidden" name="new_record" value="true">
+          <!-- Campo para ID do funcionário (auto-incrementado) -->
+          <label for="ID">ID:</label>
+          <input type="text" name="ID" value="{{ next_id }}" readonly disabled="disabled"><br>
+
+          <!-- Campo para Nome do funcionário -->
+          <label for="NOME">Nome:</label>
+          <input type="text" name="NOME" required><br>
+
+          <!-- Campo para Empresa -->
+          <label for="EMPRESA">Empresa:</label>
+          <input type="text" name="EMPRESA" required><br>
+
+          <!-- Campo para Obra Localizada -->
+          <label for="OBRA">Obra Localizada:</label>
+          <input type="text" name="OBRA" required><br>
+
+          <!-- Botão para submeter o formulário -->
+          <button type="submit">Adicionar</button>
+      </form>
+  </div>
+</div>
+
+
+
+
+  <!-- Modal para Editar Registro -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span id="editClose" class="close">&times;</span>
+      <h2>Editar Funcionário <span id="modalEditName"></span></h2>
+
+      <form method="POST" action="{{ url_for('update') }}">
+        <input type="hidden" name="edit_record" value="true">
+        <input type="hidden" id="editID" name="ID">
+
+        <label for="editName">Nome:</label>
+        <input type="text" id="editName" name="NOME"><br>
+
+        <label for="editCompany">Empresa:</label>
+        <input type="text" id="editCompany" name="EMPRESA"><br>
+
+        <label for="editLocation">Obra Localizada:</label>
+        <input type="text" id="editLocation" name="OBRA"><br>
+
+        <button type="submit">Salvar Alterações</button>
+        <button type="submit" class="close">Fechar</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+
+</body>
+
+</html>
